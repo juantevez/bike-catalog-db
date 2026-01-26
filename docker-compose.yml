@@ -1,0 +1,47 @@
+# docker-compose.yml (versión desarrollo local)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bike-registry-db
+    environment:
+      POSTGRES_DB: bike_registry
+      POSTGRES_USER: bike_user
+      POSTGRES_PASSWORD: localdev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bike_user -d bike_registry"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bike-network
+
+  flyway:
+    image: flyway/flyway:10-alpine
+    container_name: bike-registry-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy  # Espera a que postgres esté healthy
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql:ro
+    environment:
+      # Mejor usar variables de entorno
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/bike_registry
+      FLYWAY_USER: bike_user
+      FLYWAY_PASSWORD: localdev123
+      FLYWAY_SCHEMAS: public
+      FLYWAY_CONNECT_RETRIES: 60
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    command: migrate
+    networks:
+      - bike-network
+
+volumes:
+  postgres_data:
+
+networks:
+  bike-network:
+    driver: bridge
