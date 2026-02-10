@@ -1,7 +1,7 @@
 -- Migración para añadir soporte de archivos a la tabla registered_bicycles
 ALTER TABLE registered_bicycles
     ADD COLUMN IF NOT EXISTS purchase_receipt_data BYTEA,
-    ADD COLUMN IF NOT EXISTS purchase_receipt_mime_type VARCHAR(50),
+    ADD COLUMN IF NOT EXISTS purchase_receipqt_mime_type VARCHAR(50),
 q
     ADD COLUMN IF NOT EXISTS purchase_receipt_url VARCHAR(125);
 
